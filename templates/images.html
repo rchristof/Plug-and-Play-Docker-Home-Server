@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Gallery</title>
+</head>
+<body>
+    <h1>Image Gallery</h1>
+    {% for image in images %}
+        <div>
+            <h3>{{ image.name }}</h3>
+            <img src="/images/{{ image.id }}" alt="{{ image.name }}">
+            <!--           
+            <img src="data:image/jpeg;base64,{{ image.data|b64encode }}" />
+            -->
+            <form action="/delete/{{ image.id }}" method="post">
+                <input type="submit" value="Delete">
+            </form>
+        </div>
+    {% endfor %}
+</body>
+</html>

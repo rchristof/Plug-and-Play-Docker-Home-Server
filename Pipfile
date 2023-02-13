@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+datetime = "*"
+werkzeug = "*"
+flask = "*"
+sqlalchemy = "*"
+psycopg2-binary = "*"
+flask_wtf = "*"
+wtforms = "*"
+
+[dev-packages]
+black = "*"
+
+[requires]
+python_version = "3.10"

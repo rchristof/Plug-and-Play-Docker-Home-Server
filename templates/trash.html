@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Trash</title>
+  </head>
+  <body>
+    <h1>Trash</h1>
+    {% if images %}
+      <ul>
+        {% for image in images %}
+          <li>
+            <h3>{{ image.name }}</h3>
+            <img src="/images/{{ image.id }}" alt="{{ image.name }}">
+            <form method="POST" action="{{ url_for('delete', image_id=image.id) }}">
+              <input type="hidden" name="_method" value="DELETE">
+              <button type="submit">Delete permanently</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No images in the trash.</p>
+    {% endif %}
+  </body>
+</html>
