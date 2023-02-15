@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from flask_wtf import FlaskForm
 from wtforms import HiddenField
 from base64 import b64encode
+from jinja2 import FileSystemLoader, Environment
 
 app = Flask(__name__)
 Base = declarative_base()
@@ -98,10 +99,10 @@ def delete(image_id):
     return jsonify({'error': 'Image not found.'}), 404
 
 
-@app.route('/restore/<int:id>', methods=['POST', 'PUT'])
-def restore(id):
+@app.route('/restore/<int:image_id>', methods=['POST', 'PUT'])
+def restore(image_id):
     session = Session()
-    image = session.query(Image).get(id)
+    image = session.query(Image).get(image_id)
 
     if request.form.get('_method') == 'PUT':
         if image:

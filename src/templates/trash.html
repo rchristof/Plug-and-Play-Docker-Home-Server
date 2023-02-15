@@ -15,6 +15,10 @@
               <input type="hidden" name="_method" value="DELETE">
               <button type="submit">Delete permanently</button>
             </form>
+            <form method="POST" action="{{ url_for('restore', image_id=image.id) }}">
+              <input type="hidden" name="_method" value="PUT">
+              <button type="submit">Restore</button>
+            </form>
           </li>
         {% endfor %}
       </ul>
