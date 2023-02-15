@@ -7,7 +7,6 @@ from sqlalchemy.orm import sessionmaker
 from flask_wtf import FlaskForm
 from wtforms import HiddenField
 from base64 import b64encode
-from jinja2 import FileSystemLoader, Environment
 
 app = Flask(__name__)
 Base = declarative_base()
@@ -34,15 +33,17 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    name = secure_filename(request.files['file'].filename)
-    data = request.files.get('file').read()
-    image = Image(name=name, data=data)
+    files = request.files.getlist('file[]')
 
-    session = Session()
-    session.add(image)
-    session.commit()
+    for file in files:
+        name = secure_filename(file.filename)
+        data = file.read()
+        image = Image(name=name, data=data)
 
-    return jsonify({'message': 'Image uploaded successfully.'})
+        session = Session()
+        session.add(image)
+        session.commit()
+    return jsonify({'message': f"{len(files)} image(s) uploaded successfully."})
 
 @app.route('/images/<int:image_id>')
 def get_image(image_id):
