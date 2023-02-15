@@ -5,25 +5,44 @@
   </head>
   <body>
     <h1>Trash</h1>
-    {% if images %}
-      <ul>
+      {% if images %}
         {% for image in images %}
-          <li>
-            <h3>{{ image.name }}</h3>
-            <img src="/images/{{ image.id }}" alt="{{ image.name }}">
-            <form method="POST" action="{{ url_for('delete', image_id=image.id) }}">
-              <input type="hidden" name="_method" value="DELETE">
-              <button type="submit">Delete permanently</button>
-            </form>
-            <form method="POST" action="{{ url_for('restore', image_id=image.id) }}">
-              <input type="hidden" name="_method" value="PUT">
-              <button type="submit">Restore</button>
-            </form>
-          </li>
+            <div>
+                <h3>{{ image.name }}</h3>
+                <img src="/files/{{ image.name }}" alt="{{ image.name }}">
+                <form method="POST" action="{{ url_for('delete', filename = image.name, id = image.id) }}">
+                  <input type="hidden" name="_method" value="DELETE">
+                  <button type="submit">Delete permanently</button>
+                </form>
+                <form method="POST" action="{{ url_for('restore', filename=image.name, id=image.id) }}">
+                  <input type="hidden" name="_method" value="PUT">
+                  <button type="submit">Restore</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No image(s) in the list.</p>
+    {% endif %}
+
+    <h1>Archives</h1>
+    {% if archives %}
+      <ul>
+        {% for archive in archives %}
+                <li>
+                  <a href="{{ url_for('get_file', filename=archive.name, id=archive.id) }}">{{ archive.name }}</a>
+                  <form method="POST" action="{{ url_for('delete', filename = archive.name, id = archive.id) }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit">Delete permanently</button>
+                  </form>
+                  <form method="POST" action="{{ url_for('restore', filename=archive.name, id=archive.id) }}">
+                    <input type="hidden" name="_method" value="PUT">
+                    <button type="submit">Restore</button>
+                  </form>
+              </li>    
         {% endfor %}
       </ul>
     {% else %}
-      <p>No images in the trash.</p>
+        <p>No image(s) in the list.</p>
     {% endif %}
   </body>
 </html>

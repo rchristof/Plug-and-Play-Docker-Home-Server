@@ -8,10 +8,11 @@
     {% for image in images %}
         <div>
             <h3>{{ image.name }}</h3>
-            <img src="/images/{{ image.id }}" alt="{{ image.name }}">
-            <!--           
-            <img src="data:image/jpeg;base64,{{ image.data|b64encode }}" />
-            -->
+            {% if image.content_type.split('/')[0] == 'image' %}
+                <img src="/files/{{ image.id }}" alt="{{ image.name }}">
+            {% else %}
+                <a href="/files/{{ image.id }}" download>{{ image.name }}</a>
+            {% endif %}
             <form action="/delete/{{ image.id }}" method="post">
                 <input type="submit" value="Delete">
             </form>

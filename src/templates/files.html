@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Files</title>
+</head>
+<body>
+    <h1>Images</h1>
+    {% if images %}
+        {% for image in images %}
+            <div>
+                <h3>{{ image.name }}</h3>
+                <img src="/files/{{ image.name }}" alt="{{ image.name }}">
+                <form action="/delete/{{ image.name }}/{{ image.id }}" method="post">
+                    <input type="submit" value="Delete">
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No image(s) in the list.</p>
+    {% endif %}
+
+    <h1>Archives</h1>
+    {% if archives %}
+    <ul>
+        {% for archive in archives %}
+        <li>
+            <a href="{{ url_for('get_file', filename=archive.name, id=archive.id) }}">{{ archive.name }}</a>
+            <form action="/delete/{{ archive.name }}/{{ archive.id }}" method="post">
+                <input type="submit" value="Delete">
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>No archive(s) in the list.</p>
+    {% endif %}
+</body>
+</html>
