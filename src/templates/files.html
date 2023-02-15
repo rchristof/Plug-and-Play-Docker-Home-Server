@@ -4,35 +4,31 @@
     <title>Files</title>
 </head>
 <body>
-    <h1>Images</h1>
-    {% if images %}
-        {% for image in images %}
-            <div>
-                <h3>{{ image.name }}</h3>
-                <img src="/files/{{ image.name }}" alt="{{ image.name }}">
-                <form action="/delete/{{ image.name }}/{{ image.id }}" method="post">
-                    <input type="submit" value="Delete">
-                </form>
-            </div>
+    <h1>Arquivos</h1>
+    {% if files %}
+        {% for file in files %}
+            {% if file.name.split(".")[-1] in ['jpg']%}
+                <div>
+                    <h3>{{ file.name }}</h3>
+                    <img src="/files/{{ file.name }}" alt="{{ file.name }}">
+                    <form action="/delete/{{ file.name }}/{{ file.id }}" method="post">
+                        <input type="submit" value="Delete">
+                    </form>
+                </div>
+            {% endif %}
+            {% if file.name.split(".")[-1] in ['txt', 'py']%}
+                <ul>
+                    <li>
+                        <a href="{{ url_for('get_file', filename=file.name, id=file.id) }}">{{ file.name }}</a>
+                        <form action="/delete/{{ file.name }}/{{ file.id }}" method="post">
+                            <input type="submit" value="Delete">
+                        </form>
+                    </li>
+                </ul>
+            {% endif %}
         {% endfor %}
     {% else %}
-        <p>No image(s) in the list.</p>
-    {% endif %}
-
-    <h1>Archives</h1>
-    {% if archives %}
-    <ul>
-        {% for archive in archives %}
-        <li>
-            <a href="{{ url_for('get_file', filename=archive.name, id=archive.id) }}">{{ archive.name }}</a>
-            <form action="/delete/{{ archive.name }}/{{ archive.id }}" method="post">
-                <input type="submit" value="Delete">
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-        <p>No archive(s) in the list.</p>
+        <p>No file(s) in the list.</p>
     {% endif %}
 </body>
 </html>

@@ -1,13 +1,14 @@
 import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
 from flask import Flask, make_response, redirect, render_template, request, jsonify, url_for, send_from_directory, send_file
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask_wtf import FlaskForm
 from wtforms import HiddenField
 from base64 import b64encode
-from models import Image, Archive
+from models import File
 
 app = Flask(__name__)
 app.jinja_env.filters['b64encode'] = b64encode
@@ -35,31 +36,29 @@ def upload():
         _, ext = os.path.splitext(name)
 
         if ext.lower() in image_extensions:
-            image = Image(name=name, data=data)
+            file = File(name=name, data=data)
             session = Session()
-            session.add(image)
+            session.add(file)
+            file.created_at = datetime.now()
             session.commit()
         else:
-            archive = Archive(name=name, data=data)
+            file = File(name=name, data=data)
             session = Session()
-            session.add(archive)
+            session.add(file)
+            file.created_at = datetime.now()
             session.commit()
+
     return jsonify({'message': f"{len(request.files.getlist('file[]'))} file(s) uploaded successfully."})
 
 @app.route('/files/<filename>')
 def get_file(filename):
     session = Session()
-    archive = session.query(Archive).filter_by(name=filename).first()
-    image = session.query(Image).filter_by(name=filename).first()
+    file = session.query(File).filter_by(name=filename).first()
     session.close()
 
-    if image:
-        response = make_response(image.data)
-        response.headers.set('Content-Disposition', 'attachment', filename=image.name)
-        return response
-    elif archive:
-        response = make_response(archive.data)
-        response.headers.set('Content-Disposition', 'attachment', filename=archive.name)
+    if file:
+        response = make_response(file.data)
+        response.headers.set('Content-Disposition', 'attachment', filename=file.name)
         return response
     else:
         return jsonify({'error': 'File not found.'}), 404 
@@ -67,76 +66,51 @@ def get_file(filename):
 @app.route('/files')
 def files():
     session = Session()
-    archives = session.query(Archive).filter(Archive.deleted == False).all()
-    images = session.query(Image).filter(Image.deleted == False).all()
+    files = session.query(File).filter(File.deleted == False).all()
     session.close()
 
-    return render_template('files.html', images=images, archives=archives)
+    return render_template('files.html', files=files)
 
 @app.route('/delete/<filename>/<id>', methods=['GET', 'POST'])
 def delete(filename, id):
     session = Session()
-    archive = session.query(Archive).filter_by(name=filename, id=id).first()
-    image = session.query(Image).filter_by(name=filename, id=id).first()
+    file = session.query(File).filter_by(name=filename, id=id).first()
 
     if request.form.get('_method') == 'DELETE':
-        if image:
-            session.delete(image)
+        if file:
+            session.delete(file)
             session.commit()
-            return jsonify({'message': 'Image deleted successfully.'})
-        elif archive:
-            session.delete(archive)
-            session.commit()
-            return jsonify({'message': 'Archive deleted successfully.'})
-        delete_form = DeleteForm()
-        return render_template('delete.html', image=image, archive=archive, delete_form=delete_form)
+            return jsonify({'message': 'File deleted successfully.'})
 
-    if image:
-        image.deleted = True
-        image.deleted_at = datetime.now()
+    if file:
+        file.deleted = True
+        file.deleted_at = datetime.now()
         session.commit()
 
-        return jsonify({'message': 'Image deleted successfully.'})
-    elif archive:
-        archive.deleted = True
-        archive.deleted_at = datetime.now()
-        session.commit()
-        
         return jsonify({'message': 'File deleted successfully.'})
         
-    return jsonify({'error': 'Image not found.'}), 404
+    return jsonify({'error': 'File not found.'}), 404
 
 
 @app.route('/restore/<filename>/<id>', methods=['POST', 'PUT'])
 def restore(filename, id):
     session = Session()
-    archive = session.query(Archive).filter_by(name=filename, id=id).first()
-    image = session.query(Image).filter_by(name=filename, id=id).first()
+    file = session.query(File).filter_by(name=filename, id=id).first()
 
     if request.form.get('_method') == 'PUT':
-        if image:
-            image.deleted = False
-            image.deleted_at = None
+        if file:
+            file.deleted = False
+            file.deleted_at = None
             session.commit()
 
-            return jsonify({'message': 'Image restored successfully.'})
-        elif archive:
-            archive.deleted = False
-            archive.deleted_at = None
-            session.commit()
+            return jsonify({'message': 'File restored successfully.'})
 
-            return jsonify({'message': 'Archive restored successfully.'})
-        
-    if image:
-        image.deleted = False
-        image.deleted_at = None
-        session.commit()
-    elif archive:
-        archive.deleted = False
-        archive.deleted_at = None
-        session.commit()
+    if file:
+        file.deleted = False
+        file.deleted_at = None
+        file.commit()
 
-        return jsonify({'message': 'Image restored successfully.'})
+        return jsonify({'message': 'File restored successfully.'})
         
     return jsonify({'error': 'Image not found.'}), 404
 
@@ -144,10 +118,9 @@ def restore(filename, id):
 @app.route('/trash')
 def trash():
     session = Session()
-    archives = session.query(Archive).filter_by(deleted=True).all()
-    images = session.query(Image).filter_by(deleted=True).all()
+    files = session.query(File).filter_by(deleted=True).all()
 
-    return render_template('trash.html', images=images, archives=archives)
+    return render_template('trash.html', files=files)
 
 
 if __name__ == '__main__':
