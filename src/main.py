@@ -1,10 +1,9 @@
 import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
-from flask import Flask, make_response, redirect, render_template, request, jsonify, url_for, send_from_directory, send_file
-from sqlalchemy import Boolean, DateTime, create_engine, Column, Integer, String, LargeBinary
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, joinedload
+from flask import Flask, make_response, render_template, request, jsonify
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from flask_wtf import FlaskForm
 from wtforms import HiddenField
 from base64 import b64encode
@@ -73,16 +72,6 @@ def files():
     session.close()
 
     return render_template('files.html', images=images, archives=archives)
-
-# @app.route('/delete/<int:id>', methods=['DELETE'])
-# def delete(id):
-#     session = Session()
-#     image = session.query(Image).filter_by(id=id).first()
-#     if image:
-#         session.delete(image)
-#         session.commit()
-#         return jsonify({'message': 'Image deleted successfully.'})
-#     return jsonify({'error': 'Image not found.'}), 404
 
 @app.route('/delete/<filename>/<id>', methods=['GET', 'POST'])
 def delete(filename, id):
