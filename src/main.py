@@ -75,19 +75,27 @@ def files():
 def delete(filename, id):
     session = Session()
     file = session.query(File).filter_by(name=filename, id=id).first()
-
-    if request.form.get('_method') == 'DELETE':
-        if file:
-            session.delete(file)
+    files = request.form.getlist('file[]')
+    if files:
+        for file in files:
+            file.deleted = True
+            file.deleted_at = datetime.now()
             session.commit()
-            return jsonify({'message': 'File deleted successfully.'})
 
+        return jsonify({'message': 'File(s) deleted successfully.'})
     if file:
         file.deleted = True
         file.deleted_at = datetime.now()
         session.commit()
 
         return jsonify({'message': 'File deleted successfully.'})
+    
+    if request.form.get('_method') == 'DELETE':
+        if file:
+            session.delete(file)
+            session.commit()
+
+            return jsonify({'message': 'File deleted successfully.'})
         
     return jsonify({'error': 'File not found.'}), 404
 
